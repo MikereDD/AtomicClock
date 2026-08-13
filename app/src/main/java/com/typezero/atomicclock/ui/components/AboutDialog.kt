@@ -39,9 +39,9 @@ fun AboutDialog(onDismiss: () -> Unit) {
         },
         icon = {
             Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
+                painter = painterResource(R.drawable.atomic_clock_app_icon),
                 contentDescription = null,
-                modifier = Modifier.size(76.dp),
+                modifier = Modifier.size(88.dp),
             )
         },
         title = {

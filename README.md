@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="app/src/main/res/drawable-nodpi/atomic_clock_app_icon.png" alt="Atomic Clock app icon" width="168" />
+
 # 🕰️ Atomic Clock
 
 ### Precise time over NTP · live local weather · a home-screen widget
