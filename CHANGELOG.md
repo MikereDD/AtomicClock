@@ -5,6 +5,28 @@ All notable changes to Atomic Clock are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-08-12
+
+### Changed
+- Began the **battery & reliability hardening** milestone on the road to v1.0.
+- Background widget maintenance now runs hourly instead of every 15 minutes; the clock digits still advance independently through Android `TextClock`.
+- Removed the redundant 30-minute AppWidget system update broadcast. WorkManager is now the single scheduler for network-backed widget data.
+- Periodic work requires network connectivity and a battery-not-low state so nonessential refreshes are deferred when power is constrained.
+- Background NTP sync and weather refresh are freshness-aware and skip network requests when cached data is still current.
+- Background NTP uses two samples instead of four; the foreground/manual sync retains the higher-precision sampling path.
+- Live background location is limited to roughly once every three hours, only with `Allow all the time` permission and while Battery Saver is off. Hourly weather can reuse cached coordinates between location fixes.
+- Foreground auto-sync/weather cadence reduced from 10/15 minutes to 30 minutes.
+- Duplicate launch/resume weather requests are coalesced with a short freshness throttle.
+- Background-location guidance now clarifies that cached-location weather can still refresh without `Allow all the time`; that permission is needed for the widget to follow location changes while travelling.
+- Widget storage/redraw is skipped when the snapshot has not changed.
+- Debug-only refresh-reason logging added for periodic, widget, and boot-triggered maintenance.
+- Removed temporary patch README files from the standalone source tree.
+- Bumped app version to **0.6.0**.
+
+### Preserved
+- Existing widget appearance and behavior remain unchanged; this release is intentionally an engineering/battery pass.
+- Manual refresh still bypasses the conservative automatic cadence.
+
 ## [0.5.1] - 2026-06-30
 
 ### Changed

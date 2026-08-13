@@ -12,7 +12,7 @@ class WidgetBootReceiver : BroadcastReceiver() {
             Intent.ACTION_MY_PACKAGE_REPLACED,
             Intent.ACTION_PACKAGE_REPLACED -> {
                 WidgetWork.ensureScheduled(context)
-                WidgetWork.refreshNow(context)
+                WidgetWork.refreshNow(context, WidgetRefreshWorker.REASON_BOOT)
             }
         }
     }

@@ -7,4 +7,8 @@
 /captures
 .externalNativeBuild
 .cxx
+*.apk
 *.apk.idsig
+
+# Android build outputs
+**/build/

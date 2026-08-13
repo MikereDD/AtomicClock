@@ -14,13 +14,13 @@ data class BackgroundLocationStatus(
     val ready: Boolean get() = foregroundGranted && backgroundGranted
 
     val title: String
-        get() = if (ready) "Automatic widget weather is on" else "Enable automatic widget weather"
+        get() = if (ready) "Live widget location is on" else "Enable live widget location"
 
     val message: String
         get() = when {
-            ready -> "Weather and city can refresh while Atomic Clock is closed."
-            !foregroundGranted -> "First allow location so the app can find local weather."
-            else -> "Android requires Location set to \"Allow all the time\" for weather and city to update while the app is closed."
+            ready -> "Weather can follow your location while Atomic Clock is closed."
+            !foregroundGranted -> "Allow location so Atomic Clock can find local weather."
+            else -> "Weather still refreshes for your last known location. Set Location to \"Allow all the time\" if you want the widget city and weather to follow you while travelling."
         }
 }
 

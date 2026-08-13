@@ -61,6 +61,7 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
         }
 
     private var lastSyncAt = 0L
+    private var lastWeatherFetchAt = 0L
 
     init {
         WidgetWork.ensureScheduled(app)
@@ -118,6 +119,10 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
     /** Refreshes current conditions. Safe to call before/without location permission. */
     fun refreshWeather(force: Boolean = false) {
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            if (!force && lastWeatherFetchAt > 0 && now - lastWeatherFetchAt < FOREGROUND_WEATHER_THROTTLE_MS) {
+                return@launch
+            }
             if (!weatherRepo.hasLocationPermission()) {
                 _weatherState.value =
                     WeatherState.Unavailable(needsPermission = true, message = "Tap for weather")
@@ -128,6 +133,7 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
             }
             val weather = weatherRepo.fetch(forceFresh = force)
             _weatherState.value = if (weather != null) {
+                lastWeatherFetchAt = System.currentTimeMillis()
                 WeatherState.Available(weather)
             } else {
                 WeatherState.Unavailable(needsPermission = false, message = "Weather unavailable")
@@ -147,8 +153,9 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
             syncEpoch = lastSyncAt,
             weather = weather,
         )
-        WidgetStore.save(app, snapshot)
-        AtomicClockWidget.refresh(app)
+        if (WidgetStore.saveIfChanged(app, snapshot)) {
+            AtomicClockWidget.refresh(app)
+        }
     }
 
     /**
@@ -162,7 +169,8 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private companion object {
-        const val AUTO_RESYNC_INTERVAL_MS = 10 * 60 * 1000L // re-sync every 10 minutes
-        const val WEATHER_REFRESH_INTERVAL_MS = 15 * 60 * 1000L // refresh weather every 15 minutes
+        const val AUTO_RESYNC_INTERVAL_MS = 30 * 60 * 1000L // corrected time is monotonic; 30m is plenty while open
+        const val WEATHER_REFRESH_INTERVAL_MS = 30 * 60 * 1000L // avoid unnecessary foreground network/location work
+        const val FOREGROUND_WEATHER_THROTTLE_MS = 5 * 60 * 1000L // coalesce launch/resume permission refreshes
     }
 }

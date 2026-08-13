@@ -7,7 +7,7 @@
     android:maxResizeWidth="320dp"
     android:maxResizeHeight="180dp"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="1800000"
+    android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_atomic_small"
     android:previewLayout="@layout/widget_atomic_preview_small"
     android:widgetCategory="home_screen"

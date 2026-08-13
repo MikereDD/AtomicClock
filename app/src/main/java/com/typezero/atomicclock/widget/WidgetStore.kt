@@ -33,6 +33,13 @@ data class WidgetSnapshot(
 object WidgetStore {
     private const val PREFS = "atomic_widget"
 
+    /** Save only when values differ; returns true when storage changed. */
+    fun saveIfChanged(context: Context, s: WidgetSnapshot): Boolean {
+        if (load(context) == s) return false
+        save(context, s)
+        return true
+    }
+
     fun save(context: Context, s: WidgetSnapshot) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().apply {
             putBoolean("hasSync", s.hasSync)

@@ -23,13 +23,13 @@ import com.typezero.atomicclock.weather.formatTemperature
 open class AtomicClockWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         WidgetWork.ensureScheduled(context)
-        WidgetWork.refreshNow(context)
+        WidgetWork.refreshNow(context, WidgetRefreshWorker.REASON_WIDGET)
         ids.forEach { render(context, manager, it) }
     }
 
     override fun onEnabled(context: Context) {
         WidgetWork.ensureScheduled(context)
-        WidgetWork.refreshNow(context)
+        WidgetWork.refreshNow(context, WidgetRefreshWorker.REASON_WIDGET)
     }
 
     override fun onDisabled(context: Context) {

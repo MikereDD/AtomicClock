@@ -4,13 +4,13 @@
 
 ### Precise time over NTP · live local weather · a home-screen widget
 
-![Version](https://img.shields.io/badge/version-0.5.1-39E0D0?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.6.0-39E0D0?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![minSdk](https://img.shields.io/badge/minSdk-26-1E88E5?style=flat-square)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
 ![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)
 
-[**⬇️ Download APK**](https://github.com/MikereDD/It-Works-On-My-Machine/raw/refs/heads/main/Android/AtomicClock/releases/atomic-clock-v0.5.1.apk) &nbsp;·&nbsp; [**📜 Changelog**](https://github.com/MikereDD/It-Works-On-My-Machine/blob/main/Android/AtomicClock/CHANGELOG.md)
+[**⬇️ Download APK**](https://github.com/MikereDD/It-Works-On-My-Machine/raw/refs/heads/main/Android/AtomicClock/releases/atomic-clock-v0.5.1.apk) &nbsp;·&nbsp; [**📜 Changelog**](CHANGELOG.md) &nbsp;·&nbsp; [**🗺️ Roadmap**](ROADMAP.md)
 
 </div>
 
@@ -36,7 +36,7 @@ A polished Android clock that syncs to internet time servers over **SNTP/NTP** a
 - ⏰ Time self-updates to the minute via Android's `TextClock` (no service, no battery cost).
 - 📊 Shows drift, sync source, and a weather line; **tap to open the app**.
 - 🎨 Adjustable background — **Solid · Translucent · Clear** — to sit lighter over your wallpaper.
-- 🔄 Automatic weather/city refresh while closed, with clear Android **Allow all the time** permission guidance.
+- 🔄 Battery-conscious background weather refresh; **Allow all the time** lets the widget follow location changes while the app is closed.
 - 🕒 Large widget shows when weather was last updated, so stale readings are easy to spot.
 
 ## ⚙️ Settings
@@ -77,6 +77,6 @@ app/src/main/java/com/typezero/atomicclock/
 
 ## 📜 Changelog
 
-See the [**full changelog**](https://github.com/MikereDD/It-Works-On-My-Machine/blob/main/Android/AtomicClock/CHANGELOG.md) for version history.
+See the [**full changelog**](CHANGELOG.md) for version history and the [**roadmap**](ROADMAP.md) for the path to v1.0.
 
 <div align="center"><sub>Built by <b>typezero</b> · It-Works-On-My-Machine</sub></div>
