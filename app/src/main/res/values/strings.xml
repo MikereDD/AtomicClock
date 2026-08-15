@@ -3,4 +3,6 @@
     <string name="widget_description">Atomic time, drift, and local weather.</string>
     <string name="widget_label_small">Atomic Clock · 2×1</string>
     <string name="widget_label_large">Atomic Clock · 4×2</string>
+    <string name="widget_label_dial">Atomic Clock · Dial · Midnight</string>
+    <string name="dial_widget_description">Precision Dial widget in the Midnight theme.</string>
 </resources>

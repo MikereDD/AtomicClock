@@ -37,6 +37,7 @@ open class AtomicClockWidget : AppWidgetProvider() {
         val anyLeft = listOf(
             AtomicClockWidgetSmall::class.java,
             AtomicClockWidgetLarge::class.java,
+            AtomicClockDialWidget::class.java,
         ).any { manager.getAppWidgetIds(ComponentName(context, it)).isNotEmpty() }
         if (!anyLeft) WidgetWork.cancel(context)
     }
@@ -62,6 +63,7 @@ open class AtomicClockWidget : AppWidgetProvider() {
                 manager.getAppWidgetIds(ComponentName(context, cls))
                     .forEach { render(context, manager, it) }
             }
+            AtomicClockDialWidget.refresh(context)
         }
 
         private fun render(context: Context, manager: AppWidgetManager, id: Int) {
