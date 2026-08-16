@@ -37,15 +37,21 @@ object ArcticDialRenderer {
     private const val WEATHER_X = 0.338f
     private const val HUMIDITY_X = 0.662f
     private const val AXIS_Y = 0.50f
-    private const val ICON_CENTER_Y = 0.440f
-    private const val VALUE_BASELINE_Y = 0.518f
-    private const val LABEL_BASELINE_Y = 0.548f
+    private const val WEATHER_ICON_CENTER_Y = 0.443f
+    private const val HUMIDITY_ICON_CENTER_Y = 0.440f
+    private const val WEATHER_VALUE_BASELINE_Y = 0.515f
+    private const val HUMIDITY_VALUE_BASELINE_Y = 0.518f
+    private const val WEATHER_LABEL_BASELINE_Y = 0.547f
+    private const val HUMIDITY_LABEL_BASELINE_Y = 0.548f
     private const val DATE_BASELINE_Y = 0.638f
     private const val DRIFT_BASELINE_Y = 0.680f
 
-    private const val ICON_SIZE = 0.055f
-    private const val VALUE_TEXT_SIZE = 0.054f
-    private const val LABEL_TEXT_SIZE = 0.019f
+    private const val WEATHER_ICON_SIZE = 0.064f
+    private const val HUMIDITY_ICON_SIZE = 0.055f
+    private const val WEATHER_VALUE_TEXT_SIZE = 0.060f
+    private const val HUMIDITY_VALUE_TEXT_SIZE = 0.054f
+    private const val WEATHER_LABEL_TEXT_SIZE = 0.021f
+    private const val HUMIDITY_LABEL_TEXT_SIZE = 0.019f
     private const val DATE_TEXT_SIZE = 0.044f
     private const val DRIFT_TEXT_SIZE = 0.020f
     private const val WEATHER_VALUE_MAX_WIDTH = 0.145f
@@ -102,16 +108,16 @@ if (snapshot.hasWeather) {
             canvas,
             weatherIcon(snapshot.iconName),
             WEATHER_X * size,
-            ICON_CENTER_Y * size,
-            ICON_SIZE * size,
+            WEATHER_ICON_CENTER_Y * size,
+            WEATHER_ICON_SIZE * size,
         )
 
         drawCenteredText(
             canvas,
             formatDegrees(snapshot.tempC, snapshot.fahrenheit),
             WEATHER_X * size,
-            VALUE_BASELINE_Y * size,
-            VALUE_TEXT_SIZE * size,
+            WEATHER_VALUE_BASELINE_Y * size,
+            WEATHER_VALUE_TEXT_SIZE * size,
             Color.rgb(32, 36, 40),
             Typeface.DEFAULT_BOLD,
             WEATHER_VALUE_MAX_WIDTH * size,
@@ -124,8 +130,8 @@ if (snapshot.hasWeather) {
             canvas,
             label,
             WEATHER_X * size,
-            LABEL_BASELINE_Y * size,
-            LABEL_TEXT_SIZE * size,
+            WEATHER_LABEL_BASELINE_Y * size,
+            WEATHER_LABEL_TEXT_SIZE * size,
             CYAN,
             mediumTypeface,
             WEATHER_LABEL_MAX_WIDTH * size,
@@ -138,16 +144,16 @@ if (snapshot.hasWeather) {
             canvas,
             R.drawable.widget_midnight_humidity,
             HUMIDITY_X * size,
-            ICON_CENTER_Y * size,
-            ICON_SIZE * size,
+            HUMIDITY_ICON_CENTER_Y * size,
+            HUMIDITY_ICON_SIZE * size,
         )
 
         drawCenteredText(
             canvas,
             "${snapshot.humidity.coerceIn(0, 100)}%",
             HUMIDITY_X * size,
-            VALUE_BASELINE_Y * size,
-            VALUE_TEXT_SIZE * size,
+            HUMIDITY_VALUE_BASELINE_Y * size,
+            HUMIDITY_VALUE_TEXT_SIZE * size,
             Color.rgb(32, 36, 40),
             Typeface.DEFAULT_BOLD,
             HUMIDITY_VALUE_MAX_WIDTH * size,
@@ -156,8 +162,8 @@ if (snapshot.hasWeather) {
             canvas,
             "Humidity",
             HUMIDITY_X * size,
-            LABEL_BASELINE_Y * size,
-            LABEL_TEXT_SIZE * size,
+            HUMIDITY_LABEL_BASELINE_Y * size,
+            HUMIDITY_LABEL_TEXT_SIZE * size,
             CYAN,
             mediumTypeface,
             HUMIDITY_LABEL_MAX_WIDTH * size,
