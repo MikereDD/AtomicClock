@@ -38,20 +38,20 @@ object MidnightDialRenderer {
     private const val HUMIDITY_X = 0.662f
     private const val AXIS_Y = 0.50f
     private const val WEATHER_ICON_CENTER_Y = 0.443f
-    private const val HUMIDITY_ICON_CENTER_Y = 0.440f
+    private const val HUMIDITY_ICON_CENTER_Y = 0.443f
     private const val WEATHER_VALUE_BASELINE_Y = 0.515f
-    private const val HUMIDITY_VALUE_BASELINE_Y = 0.518f
+    private const val HUMIDITY_VALUE_BASELINE_Y = 0.515f
     private const val WEATHER_LABEL_BASELINE_Y = 0.547f
-    private const val HUMIDITY_LABEL_BASELINE_Y = 0.548f
+    private const val HUMIDITY_LABEL_BASELINE_Y = 0.547f
     private const val DATE_BASELINE_Y = 0.638f
     private const val DRIFT_BASELINE_Y = 0.680f
 
     private const val WEATHER_ICON_SIZE = 0.064f
-    private const val HUMIDITY_ICON_SIZE = 0.055f
+    private const val HUMIDITY_ICON_SIZE = 0.064f
     private const val WEATHER_VALUE_TEXT_SIZE = 0.060f
-    private const val HUMIDITY_VALUE_TEXT_SIZE = 0.054f
+    private const val HUMIDITY_VALUE_TEXT_SIZE = 0.060f
     private const val WEATHER_LABEL_TEXT_SIZE = 0.021f
-    private const val HUMIDITY_LABEL_TEXT_SIZE = 0.019f
+    private const val HUMIDITY_LABEL_TEXT_SIZE = 0.021f
     private const val DATE_TEXT_SIZE = 0.044f
     private const val DRIFT_TEXT_SIZE = 0.020f
     private const val WEATHER_VALUE_MAX_WIDTH = 0.145f
