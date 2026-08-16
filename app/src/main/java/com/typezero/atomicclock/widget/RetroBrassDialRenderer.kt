@@ -39,12 +39,12 @@ object RetroBrassDialRenderer {
     private const val WEATHER_X = 0.338f
     private const val HUMIDITY_X = 0.662f
     private const val AXIS_Y = 0.50f
-    private const val WEATHER_ICON_CENTER_Y = 0.443f
-    private const val HUMIDITY_ICON_CENTER_Y = 0.443f
-    private const val WEATHER_VALUE_BASELINE_Y = 0.515f
-    private const val HUMIDITY_VALUE_BASELINE_Y = 0.515f
-    private const val WEATHER_LABEL_BASELINE_Y = 0.547f
-    private const val HUMIDITY_LABEL_BASELINE_Y = 0.547f
+    private const val WEATHER_ICON_CENTER_Y = 0.455f
+    private const val HUMIDITY_ICON_CENTER_Y = 0.455f
+    private const val WEATHER_VALUE_BASELINE_Y = 0.527f
+    private const val HUMIDITY_VALUE_BASELINE_Y = 0.527f
+    private const val WEATHER_LABEL_BASELINE_Y = 0.559f
+    private const val HUMIDITY_LABEL_BASELINE_Y = 0.559f
     private const val DATE_BASELINE_Y = 0.638f
     private const val DRIFT_BASELINE_Y = 0.680f
 
