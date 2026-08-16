@@ -1,11 +1,19 @@
 package com.typezero.atomicclock.update
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.core.content.FileProvider
 import com.typezero.atomicclock.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.MessageDigest
 
 sealed interface UpdateCheckResult {
     data object Checking : UpdateCheckResult
@@ -15,11 +23,24 @@ sealed interface UpdateCheckResult {
         val manifest: ReleaseManifest,
         val asset: AndroidReleaseAsset,
     ) : UpdateCheckResult
+    data class Downloading(val version: String, val percent: Int) : UpdateCheckResult
+    data class Verifying(val version: String) : UpdateCheckResult
+    data class ReadyToInstall(val prepared: PreparedUpdate) : UpdateCheckResult
+    data class PermissionRequired(val prepared: PreparedUpdate) : UpdateCheckResult
+    data class Installing(val version: String) : UpdateCheckResult
     data class Rejected(val reason: String) : UpdateCheckResult
     data class Failed(val message: String) : UpdateCheckResult
 }
 
-class UpdateRepository {
+data class PreparedUpdate(
+    val version: String,
+    val apk: File,
+    val signature: File,
+    val manifest: ReleaseManifest,
+    val asset: AndroidReleaseAsset,
+)
+
+class UpdateRepository(private val context: Context) {
     suspend fun check(channel: UpdateChannel): UpdateCheckResult = withContext(Dispatchers.IO) {
         runCatching {
             val release = discoverRelease(channel)
@@ -48,6 +69,106 @@ class UpdateRepository {
         }.getOrElse { error ->
             UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
         }
+    }
+
+    suspend fun prepare(
+        manifest: ReleaseManifest,
+        asset: AndroidReleaseAsset,
+        onProgress: (String, Int) -> Unit,
+    ): UpdateCheckResult = withContext(Dispatchers.IO) {
+        runCatching {
+            validateManifest(manifest, UpdateChannel.fromManifestValue(manifest.channel))
+            validateAsset(asset, manifest.version)
+
+            val staging = File(context.cacheDir, "updates/${manifest.version}")
+            if (staging.exists()) staging.deleteRecursively()
+            require(staging.mkdirs() || staging.isDirectory) { "Could not create update staging directory." }
+
+            val apk = File(staging, asset.fileName)
+            val sig = File(staging, asset.signature.fileName)
+
+            downloadVerifiedSize(asset.downloadUrl, apk, asset.size) { read ->
+                val percent = ((read * 100L) / asset.size.coerceAtLeast(1L)).toInt().coerceIn(0, 100)
+                onProgress(manifest.version, percent)
+            }
+            downloadVerifiedSize(asset.signature.downloadUrl, sig, asset.signature.size) { }
+
+            onProgress(manifest.version, 100)
+
+            val prepared = PreparedUpdate(
+                version = manifest.version,
+                apk = apk,
+                signature = sig,
+                manifest = manifest,
+                asset = asset,
+            )
+
+            verifyPreparedUpdate(prepared)
+            UpdateCheckResult.ReadyToInstall(prepared)
+        }.getOrElse { error ->
+            UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
+        }
+    }
+
+    fun launchInstaller(prepared: PreparedUpdate): UpdateCheckResult {
+        return runCatching {
+            // Final trust-boundary verification immediately before Android receives the APK.
+            verifyPreparedUpdate(prepared)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                !context.packageManager.canRequestPackageInstalls()
+            ) {
+                return UpdateCheckResult.PermissionRequired(prepared)
+            }
+
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.updatefiles",
+                prepared.apk,
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            UpdateCheckResult.Installing(prepared.version)
+        }.getOrElse { error ->
+            UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
+        }
+    }
+
+    fun openInstallPermissionSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val intent = Intent(
+            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+            Uri.parse("package:${context.packageName}"),
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
+    private fun verifyPreparedUpdate(prepared: PreparedUpdate) {
+        val asset = prepared.asset
+        require(prepared.apk.length() == asset.size) { "Downloaded APK size mismatch." }
+        require(prepared.signature.length() == asset.signature.size) { "Downloaded signature size mismatch." }
+
+        require(sha256(prepared.apk) == asset.sha256) { "APK SHA-256 verification failed." }
+        require(sha256(prepared.signature) == asset.signature.sha256) {
+            "Detached signature SHA-256 verification failed."
+        }
+
+        require(ReleaseSignatureVerifier.verify(context, prepared.apk, prepared.signature)) {
+            "Detached RSA/SHA-256 release signature verification failed."
+        }
+
+        ApkIdentityVerifier.verify(
+            context = context,
+            apk = prepared.apk,
+            expectedVersion = prepared.version,
+            expectedPackageId = UpdateTrust.PACKAGE_ID,
+            expectedSignerSha256 = UpdateTrust.APK_SIGNING_CERT_SHA256,
+        )
     }
 
     private data class ReleaseDiscovery(val manifestUrl: String?)
@@ -95,13 +216,9 @@ class UpdateRepository {
     }
 
     private fun validateAsset(asset: AndroidReleaseAsset, manifestVersion: String) {
-        require(asset.fileName == "AtomicClock-v$manifestVersion.apk") {
-            "Unexpected APK asset name."
-        }
+        require(asset.fileName == "AtomicClock-v$manifestVersion.apk") { "Unexpected APK asset name." }
         require(asset.size > 0) { "APK asset size is invalid." }
-        require(asset.sha256.matches(Regex("^[0-9a-f]{64}$"))) {
-            "APK SHA-256 is invalid."
-        }
+        require(asset.sha256.matches(Regex("^[0-9a-f]{64}$"))) { "APK SHA-256 is invalid." }
         require(asset.packageId == UpdateTrust.PACKAGE_ID) { "APK package ID mismatch." }
         require(asset.signingCertificateSha256 == UpdateTrust.APK_SIGNING_CERT_SHA256) {
             "APK signer identity does not match Atomic Clock's pinned certificate."
@@ -129,29 +246,102 @@ class UpdateRepository {
         UpdateTrust.requireApprovedHttps(signature.downloadUrl)
     }
 
-    private fun fetchText(url: String): String {
+    private fun downloadVerifiedSize(
+        url: String,
+        destination: File,
+        expectedSize: Long,
+        onBytes: (Long) -> Unit,
+    ) {
         UpdateTrust.requireApprovedHttps(url)
-        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
-            connectTimeout = 10_000
-            readTimeout = 15_000
-            instanceFollowRedirects = false
-            requestMethod = "GET"
-            setRequestProperty("Accept", "application/vnd.github+json, application/json")
-            setRequestProperty("User-Agent", "AtomicClock/${BuildConfig.VERSION_NAME}")
-        }
+        val part = File(destination.parentFile, "${destination.name}.part")
+        part.delete()
 
+        var connection = openConnection(url)
         try {
-            val code = connection.responseCode
-            if (code in 300..399) {
+            var redirectCount = 0
+            while (connection.responseCode in 300..399) {
+                require(redirectCount++ < 5) { "Too many update download redirects." }
                 val redirect = connection.getHeaderField("Location")
                     ?: error("Update server returned a redirect without a destination.")
                 UpdateTrust.requireApprovedHttps(redirect)
-                return fetchText(redirect)
+                connection.disconnect()
+                connection = openConnection(redirect)
             }
-            require(code in 200..299) { "Update server returned HTTP $code." }
+
+            require(connection.responseCode in 200..299) {
+                "Update download returned HTTP ${connection.responseCode}."
+            }
+
+            val declaredLength = connection.contentLengthLong
+            if (declaredLength >= 0) {
+                require(declaredLength == expectedSize) { "Update server size does not match manifest." }
+            }
+
+            var total = 0L
+            connection.inputStream.use { input ->
+                part.outputStream().buffered().use { output ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count <= 0) break
+                        total += count
+                        require(total <= expectedSize) { "Downloaded update exceeded manifest size." }
+                        output.write(buffer, 0, count)
+                        onBytes(total)
+                    }
+                }
+            }
+
+            require(total == expectedSize) { "Downloaded update size mismatch." }
+            require(part.renameTo(destination)) { "Could not finalize downloaded update asset." }
+        } finally {
+            connection.disconnect()
+            if (part.exists()) part.delete()
+        }
+    }
+
+    private fun openConnection(url: String): HttpURLConnection {
+        UpdateTrust.requireApprovedHttps(url)
+        return (URL(url).openConnection() as HttpURLConnection).apply {
+            connectTimeout = 15_000
+            readTimeout = 30_000
+            instanceFollowRedirects = false
+            requestMethod = "GET"
+            setRequestProperty("Accept", "application/octet-stream, application/vnd.github+json, application/json")
+            setRequestProperty("User-Agent", "AtomicClock/${BuildConfig.VERSION_NAME}")
+        }
+    }
+
+    private fun fetchText(url: String): String {
+        UpdateTrust.requireApprovedHttps(url)
+        var connection = openConnection(url)
+        try {
+            var redirectCount = 0
+            while (connection.responseCode in 300..399) {
+                require(redirectCount++ < 5) { "Too many update metadata redirects." }
+                val redirect = connection.getHeaderField("Location")
+                    ?: error("Update server returned a redirect without a destination.")
+                UpdateTrust.requireApprovedHttps(redirect)
+                connection.disconnect()
+                connection = openConnection(redirect)
+            }
+            require(connection.responseCode in 200..299) { "Update server returned HTTP ${connection.responseCode}." }
             return connection.inputStream.bufferedReader().use { it.readText() }
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun sha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = input.read(buffer)
+                if (read <= 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 }

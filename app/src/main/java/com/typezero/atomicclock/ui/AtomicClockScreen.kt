@@ -274,6 +274,7 @@ fun AtomicClockScreen(vm: ClockViewModel = viewModel()) {
                 updateState = updateState,
                 onSelectUpdateChannel = { vm.setUpdateChannel(it) },
                 onCheckForUpdates = { vm.checkForUpdates() },
+                onInstallUpdate = { vm.downloadAndInstallUpdate() },
                 onSelectServer = { vm.setServer(it) },
                 backgroundLocationStatus = bgLocationStatus,
                 onBackgroundUpdates = enableBackgroundUpdates,

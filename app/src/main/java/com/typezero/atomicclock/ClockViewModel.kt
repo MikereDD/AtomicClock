@@ -43,7 +43,7 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
     private val timeSync = TimeSyncRepository()
     private val settingsRepo = SettingsRepository(app)
     private val weatherRepo = WeatherRepository(app)
-    private val updateRepo = UpdateRepository()
+    private val updateRepo = UpdateRepository(app)
 
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
@@ -128,10 +128,42 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun checkForUpdates() {
-        if (_updateState.value is UpdateCheckResult.Checking) return
+        if (_updateState.value is UpdateCheckResult.Checking ||
+            _updateState.value is UpdateCheckResult.Downloading ||
+            _updateState.value is UpdateCheckResult.Verifying
+        ) return
+
         _updateState.value = UpdateCheckResult.Checking
         viewModelScope.launch {
             _updateState.value = updateRepo.check(settings.value.updateChannel)
+        }
+    }
+
+    fun downloadAndInstallUpdate() {
+        val current = _updateState.value
+        when (current) {
+            is UpdateCheckResult.Available -> {
+                viewModelScope.launch {
+                    _updateState.value = updateRepo.prepare(
+                        manifest = current.manifest,
+                        asset = current.asset,
+                    ) { version, percent ->
+                        _updateState.value = UpdateCheckResult.Downloading(version, percent)
+                    }
+
+                    val prepared = _updateState.value as? UpdateCheckResult.ReadyToInstall
+                    if (prepared != null) {
+                        _updateState.value = updateRepo.launchInstaller(prepared.prepared)
+                    }
+                }
+            }
+            is UpdateCheckResult.PermissionRequired -> {
+                updateRepo.openInstallPermissionSettings()
+            }
+            is UpdateCheckResult.ReadyToInstall -> {
+                _updateState.value = updateRepo.launchInstaller(current.prepared)
+            }
+            else -> Unit
         }
     }
 

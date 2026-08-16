@@ -1,3 +1,12 @@
+## 0.6.1-dev.3
+
+- Add secure staged download of APK and detached release signature.
+- Verify exact asset sizes and SHA-256 digests before trusting downloaded files.
+- Verify RSA/SHA-256 detached release signatures against the embedded pinned public key.
+- Inspect downloaded APK package ID, version, and Android signing certificate.
+- Repeat all critical verification immediately before Android installer handoff.
+- Add private FileProvider installer handoff and Android unknown-source permission flow.
+- Add updater download, verification, ready-to-install, permission, and installer UI states.
 ## 0.6.1-dev.2
 
 - Add the permanent detached Typezer∅ release-signing trust anchor.

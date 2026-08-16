@@ -134,6 +134,7 @@ fun SettingsSheet(
     updateState: UpdateCheckResult?,
     onSelectUpdateChannel: (UpdateChannel) -> Unit,
     onCheckForUpdates: () -> Unit,
+    onInstallUpdate: () -> Unit,
     onSelectServer: (NtpServer) -> Unit,
     backgroundLocationStatus: BackgroundLocationStatus,
     onBackgroundUpdates: () -> Unit,
@@ -242,7 +243,12 @@ fun SettingsSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .clickable(enabled = updateState !is UpdateCheckResult.Checking, onClick = onCheckForUpdates)
+                    .clickable(
+                        enabled = updateState !is UpdateCheckResult.Checking &&
+                            updateState !is UpdateCheckResult.Downloading &&
+                            updateState !is UpdateCheckResult.Verifying,
+                        onClick = onCheckForUpdates,
+                    )
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -256,6 +262,39 @@ fun SettingsSheet(
                     )
                 }
                 Icon(Icons.Rounded.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            if (updateState is UpdateCheckResult.Available ||
+                updateState is UpdateCheckResult.ReadyToInstall ||
+                updateState is UpdateCheckResult.PermissionRequired
+            ) {
+                val actionLabel = when (updateState) {
+                    is UpdateCheckResult.Available -> "Download & install"
+                    is UpdateCheckResult.PermissionRequired -> "Allow app installs"
+                    is UpdateCheckResult.ReadyToInstall -> "Install verified update"
+                    else -> "Install update"
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                        .clickable(onClick = onInstallUpdate)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        actionLabel,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Icon(
+                        Icons.Rounded.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
 
             Text(
@@ -447,9 +486,14 @@ private fun updateStatusText(state: UpdateCheckResult?): String = when (state) {
     null -> "Current version ${com.typezero.atomicclock.BuildConfig.VERSION_NAME}"
     UpdateCheckResult.Checking -> "Checking approved release sources…"
     is UpdateCheckResult.Current -> "Up to date · ${state.version}"
-    is UpdateCheckResult.Available -> "${state.manifest.version} available · verification required before install"
+    is UpdateCheckResult.Available -> "${state.manifest.version} available · ready for secure download"
+    is UpdateCheckResult.Downloading -> "Downloading ${state.version} · ${state.percent}%"
+    is UpdateCheckResult.Verifying -> "Verifying ${state.version} · checksum, signature, package & signer"
+    is UpdateCheckResult.ReadyToInstall -> "${state.prepared.version} verified · ready for Android installer"
+    is UpdateCheckResult.PermissionRequired -> "Android permission required to install ${state.prepared.version}"
+    is UpdateCheckResult.Installing -> "Android installer opened for ${state.version}"
     is UpdateCheckResult.Rejected -> "Rejected safely · ${state.reason}"
-    is UpdateCheckResult.Failed -> "Check failed · ${state.message}"
+    is UpdateCheckResult.Failed -> "Update failed · ${state.message}"
 }
 
 @Composable
