@@ -191,20 +191,6 @@ fun SettingsSheet(
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
                 Text(
-                    "Dial theme",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Segmented(
-                    "Midnight",
-                    "Arctic",
-                    rightSelected = settings.dialTheme == DialTheme.ARCTIC,
-                    onSelect = { arctic -> onSelectDialTheme(if (arctic) DialTheme.ARCTIC else DialTheme.MIDNIGHT) },
-                )
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
-                Text(
                     "Widget background",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -212,6 +198,18 @@ fun SettingsSheet(
                 OpacitySegmented(
                     selected = settings.widgetBackground.ordinal,
                     onSelect = onSelectWidgetBg,
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+                Text(
+                    "Dial theme",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                DialThemeSegmented(
+                    selected = settings.dialTheme,
+                    onSelect = onSelectDialTheme,
                 )
             }
 
@@ -361,6 +359,36 @@ private fun OpacitySegmented(selected: Int, onSelect: (Int) -> Unit) {
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp),
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
+                    color = if (isSelected) Color(0xFF04201C) else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialThemeSegmented(selected: DialTheme, onSelect: (DialTheme) -> Unit) {
+    val options = listOf(
+        DialTheme.MIDNIGHT to "Midnight",
+        DialTheme.ARCTIC to "Arctic",
+        DialTheme.RETRO_BRASS to "Retro Brass",
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEach { (theme, label) ->
+            val isSelected = theme == selected
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (isSelected) AtomTeal else MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable { onSelect(theme) }
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
                     color = if (isSelected) Color(0xFF04201C) else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

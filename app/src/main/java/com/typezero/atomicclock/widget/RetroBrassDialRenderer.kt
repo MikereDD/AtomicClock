@@ -7,6 +7,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
 import com.typezero.atomicclock.R
 import com.typezero.atomicclock.ui.formatOffset
@@ -19,9 +21,9 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Pixel-owned renderer for the Arctic widget.
+ * Pixel-owned renderer for the Retro Brass widget.
  *
- * Android owns only the host rectangle. Arctic owns the visual composition inside
+ * Android owns only the host rectangle. Retro Brass owns the visual composition inside
  * the square dial. Every complication is positioned in normalized dial coordinates,
  * so the approved geometry scales as one instrument at every widget size.
  *
@@ -29,7 +31,7 @@ import kotlin.math.sin
  * native layer above this bitmap so hour/minute/second motion stays live without
  * regenerating the face every second.
  */
-object ArcticDialRenderer {
+object RetroBrassDialRenderer {
     private const val MAX_RENDER_PX = 1024
     private const val MIN_RENDER_PX = 192
 
@@ -79,7 +81,7 @@ if (snapshot.hasWeather) {
         Bitmap.createBitmap(sizePx.coerceAtLeast(64), sizePx.coerceAtLeast(64), Bitmap.Config.ARGB_8888)
 
     private fun drawFace(context: Context, canvas: Canvas, size: Int) {
-        val face = BitmapFactory.decodeResource(context.resources, R.drawable.widget_arctic_face_master)
+        val face = BitmapFactory.decodeResource(context.resources, R.drawable.widget_retrobrass_face_master)
         try {
             canvas.drawBitmap(face, null, RectF(0f, 0f, size.toFloat(), size.toFloat()), facePaint)
         } finally {
@@ -89,7 +91,7 @@ if (snapshot.hasWeather) {
 
 
     /**
-     * The canonical Arctic face contains the exact timing scale.
+     * The canonical Retro Brass face contains the exact timing scale.
      * Runtime timing drawing is intentionally disabled to prevent
      * doubled ticks, masking gaps, and visual drift.
      */
@@ -112,7 +114,7 @@ if (snapshot.hasWeather) {
             WEATHER_X * size,
             VALUE_BASELINE_Y * size,
             VALUE_TEXT_SIZE * size,
-            Color.rgb(32, 36, 40),
+            Color.rgb(255, 238, 198),
             Typeface.DEFAULT_BOLD,
             WEATHER_VALUE_MAX_WIDTH * size,
         )
@@ -148,7 +150,7 @@ if (snapshot.hasWeather) {
             HUMIDITY_X * size,
             VALUE_BASELINE_Y * size,
             VALUE_TEXT_SIZE * size,
-            Color.rgb(32, 36, 40),
+            Color.rgb(255, 238, 198),
             Typeface.DEFAULT_BOLD,
             HUMIDITY_VALUE_MAX_WIDTH * size,
         )
@@ -172,7 +174,7 @@ if (snapshot.hasWeather) {
             0.5f * size,
             DATE_BASELINE_Y * size,
             DATE_TEXT_SIZE * size,
-            Color.rgb(32, 36, 40),
+            Color.rgb(255, 238, 198),
             mediumTypeface,
             DATE_MAX_WIDTH * size,
         )
@@ -203,7 +205,7 @@ if (snapshot.hasWeather) {
                 bitmap,
                 null,
                 RectF(centerX - half, centerY - half, centerX + half, centerY + half),
-                facePaint,
+                iconPaint,
             )
         } finally {
             bitmap.recycle()
@@ -225,7 +227,7 @@ if (snapshot.hasWeather) {
         textPaint.typeface = typeface
         textPaint.textAlign = Paint.Align.CENTER
 
-        // Arctic owns its geometry. If localized/live text is wider than its
+        // Retro Brass owns its geometry. If localized/live text is wider than its
         // allotted complication region, scale the type down rather than allowing
         // Android-host-dependent collisions with the center field or dial rings.
         if (maxWidthPx.isFinite()) {
@@ -249,7 +251,10 @@ if (snapshot.hasWeather) {
     }
 
     private val facePaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
+        colorFilter = PorterDuffColorFilter(Color.rgb(255, 177, 32), PorterDuff.Mode.SRC_IN)
+    }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG)
     private val mediumTypeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-    private val CYAN = Color.rgb(0, 137, 230)
+    private val CYAN = Color.rgb(255, 177, 32)
 }

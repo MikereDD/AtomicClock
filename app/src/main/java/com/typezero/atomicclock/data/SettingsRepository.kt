@@ -8,8 +8,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.typezero.atomicclock.ntp.NtpServer
-import com.typezero.atomicclock.widget.WidgetBackground
 import com.typezero.atomicclock.widget.DialTheme
+import com.typezero.atomicclock.widget.WidgetBackground
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

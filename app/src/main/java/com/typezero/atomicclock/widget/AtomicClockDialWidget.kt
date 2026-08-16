@@ -120,13 +120,16 @@ open class AtomicClockDialWidget : AppWidgetProvider() {
             val squareDp = min(hostWidthDp, hostHeightDp).coerceAtLeast(48f)
             val density = context.resources.displayMetrics.density
             val renderPx = (squareDp * density).roundToInt()
-            val theme = runCatching { DialTheme.valueOf(snapshot.dialThemeName) }.getOrDefault(DialTheme.MIDNIGHT)
-            val composite = when (theme) {
-                DialTheme.ARCTIC -> ArcticDialRenderer.render(context, snapshot, renderPx)
-                else -> MidnightDialRenderer.render(context, snapshot, renderPx)
+            val (layoutRes, composite) = when (snapshot.dialTheme) {
+                DialTheme.ARCTIC -> R.layout.widget_dial_arctic to
+                    ArcticDialRenderer.render(context, snapshot, renderPx)
+                DialTheme.RETRO_BRASS -> R.layout.widget_dial_retrobrass to
+                    RetroBrassDialRenderer.render(context, snapshot, renderPx)
+                else -> R.layout.widget_dial_midnight to
+                    MidnightDialRenderer.render(context, snapshot, renderPx)
             }
 
-            return RemoteViews(context.packageName, R.layout.widget_dial_midnight).apply {
+            return RemoteViews(context.packageName, layoutRes).apply {
                 setInt(R.id.dial_root, "setBackgroundResource", backgroundRes(snapshot.bgLevel))
                 setImageViewBitmap(R.id.dial_composite, composite)
                 setOnClickPendingIntent(R.id.dial_root, launchIntent(context))

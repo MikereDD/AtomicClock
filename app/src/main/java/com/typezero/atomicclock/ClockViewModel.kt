@@ -12,8 +12,8 @@ import com.typezero.atomicclock.ntp.SntpResult
 import com.typezero.atomicclock.weather.WeatherRepository
 import com.typezero.atomicclock.weather.WeatherState
 import com.typezero.atomicclock.widget.AtomicClockWidget
-import com.typezero.atomicclock.widget.WidgetBackground
 import com.typezero.atomicclock.widget.DialTheme
+import com.typezero.atomicclock.widget.WidgetBackground
 import com.typezero.atomicclock.widget.WidgetStore
 import com.typezero.atomicclock.widget.WidgetUpdater
 import com.typezero.atomicclock.widget.WidgetWork
