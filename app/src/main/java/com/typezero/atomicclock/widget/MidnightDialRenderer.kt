@@ -14,7 +14,9 @@ import com.typezero.atomicclock.weather.formatDegrees
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.sin
 
 /**
  * Pixel-owned renderer for the Midnight widget.
@@ -61,7 +63,9 @@ object MidnightDialRenderer {
 
         drawFace(context, canvas, size)
 
-        if (snapshot.hasWeather) {
+
+        drawPrecisionSecondScale(canvas, size)
+if (snapshot.hasWeather) {
             drawWeather(context, canvas, size, snapshot)
             drawHumidity(context, canvas, size, snapshot)
         }
@@ -83,6 +87,15 @@ object MidnightDialRenderer {
         }
     }
 
+
+    /**
+     * The canonical Midnight face contains the exact timing scale.
+     * Runtime timing drawing is intentionally disabled to prevent
+     * doubled ticks, masking gaps, and visual drift.
+     */
+    private fun drawPrecisionSecondScale(canvas: Canvas, size: Int) {
+        // Intentionally empty.
+    }
     private fun drawWeather(context: Context, canvas: Canvas, size: Int, snapshot: WidgetSnapshot) {
         drawIcon(
             context,
