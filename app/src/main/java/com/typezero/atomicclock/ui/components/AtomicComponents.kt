@@ -371,6 +371,7 @@ private fun DialThemeSegmented(selected: DialTheme, onSelect: (DialTheme) -> Uni
     val options = listOf(
         DialTheme.MIDNIGHT to "Midnight",
         DialTheme.ARCTIC to "Arctic",
+        DialTheme.EMERALD to "Emerald",
         DialTheme.RETRO_BRASS to "Retro Brass",
     )
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {

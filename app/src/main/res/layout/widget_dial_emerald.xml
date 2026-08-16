@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dial_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_translucent">
+
+    <ImageView
+        android:id="@+id/dial_composite"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:contentDescription="@string/dial_widget_description"
+        android:scaleType="fitCenter" />
+
+    <AnalogClock
+        android:id="@+id/dial_analog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:contentDescription="@string/dial_widget_description"
+        android:dial="@drawable/widget_dial_transparent"
+        android:hand_hour="@drawable/widget_emerald_hand_hour"
+        android:hand_minute="@drawable/widget_emerald_hand_minute"
+        android:hand_second="@drawable/widget_emerald_hand_second" />
+</FrameLayout>

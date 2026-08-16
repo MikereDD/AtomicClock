@@ -123,6 +123,8 @@ open class AtomicClockDialWidget : AppWidgetProvider() {
             val (layoutRes, composite) = when (snapshot.dialTheme) {
                 DialTheme.ARCTIC -> R.layout.widget_dial_arctic to
                     ArcticDialRenderer.render(context, snapshot, renderPx)
+                DialTheme.EMERALD -> R.layout.widget_dial_emerald to
+                    EmeraldDialRenderer.render(context, snapshot, renderPx)
                 DialTheme.RETRO_BRASS -> R.layout.widget_dial_retrobrass to
                     RetroBrassDialRenderer.render(context, snapshot, renderPx)
                 else -> R.layout.widget_dial_midnight to
