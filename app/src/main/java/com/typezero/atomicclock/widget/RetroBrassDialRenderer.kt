@@ -42,19 +42,19 @@ object RetroBrassDialRenderer {
     private const val ICON_CENTER_Y = 0.440f
     private const val VALUE_BASELINE_Y = 0.518f
     private const val LABEL_BASELINE_Y = 0.548f
-    private const val DATE_BASELINE_Y = 0.612f
-    private const val DRIFT_BASELINE_Y = 0.648f
+    private const val DATE_BASELINE_Y = 0.638f
+    private const val DRIFT_BASELINE_Y = 0.680f
 
     private const val ICON_SIZE = 0.055f
     private const val VALUE_TEXT_SIZE = 0.054f
     private const val LABEL_TEXT_SIZE = 0.019f
-    private const val DATE_TEXT_SIZE = 0.027f
+    private const val DATE_TEXT_SIZE = 0.044f
     private const val DRIFT_TEXT_SIZE = 0.020f
     private const val WEATHER_VALUE_MAX_WIDTH = 0.145f
     private const val WEATHER_LABEL_MAX_WIDTH = 0.165f
     private const val HUMIDITY_VALUE_MAX_WIDTH = 0.150f
     private const val HUMIDITY_LABEL_MAX_WIDTH = 0.165f
-    private const val DATE_MAX_WIDTH = 0.265f
+    private const val DATE_MAX_WIDTH = 0.340f
     private const val DRIFT_MAX_WIDTH = 0.200f
 
     fun render(context: Context, snapshot: WidgetSnapshot, requestedSizePx: Int): Bitmap {
