@@ -1,3 +1,11 @@
+## 0.6.1-dev.5
+
+- Harden updater staging cleanup after failed, abandoned, and successfully installed updates.
+- Surface the real cryptographic/package verification phase in updater status.
+- Fix Android unknown-app-source permission return/retry behavior.
+- Add clearer offline and timeout failures.
+- Distinguish mandatory manifests as required updates without bypassing Android installer confirmation.
+- Add the Typezer∅ release-validation checklist for the updater release candidate path.
 ## 0.6.1-dev.4
 
 - First dedicated end-to-end updater target for the v0.6.1 development line.

@@ -23,8 +23,8 @@ android {
         applicationId = "com.typezero.atomicclock"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.6.1-dev.4"
+        versionCode = 14
+        versionName = "0.6.1-dev.5"
         vectorDrawables { useSupportLibrary = true }
     }
 

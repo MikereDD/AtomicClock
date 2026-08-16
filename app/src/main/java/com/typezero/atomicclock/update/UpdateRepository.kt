@@ -12,7 +12,9 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.io.File
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 import java.security.MessageDigest
 
 sealed interface UpdateCheckResult {
@@ -41,8 +43,16 @@ data class PreparedUpdate(
 )
 
 class UpdateRepository(private val context: Context) {
+    init {
+        // After a successful upgrade the staged directory name equals the newly
+        // installed version. Remove it as soon as the updated app starts.
+        cleanupInstalledVersionStaging()
+        cleanupExpiredStaging()
+    }
+
     suspend fun check(channel: UpdateChannel): UpdateCheckResult = withContext(Dispatchers.IO) {
         runCatching {
+            cleanupExpiredStaging()
             val release = discoverRelease(channel)
                 ?: return@withContext UpdateCheckResult.Current(BuildConfig.VERSION_NAME)
 
@@ -67,7 +77,7 @@ class UpdateRepository(private val context: Context) {
             validateAsset(asset, manifest.version)
             UpdateCheckResult.Available(BuildConfig.VERSION_NAME, manifest, asset)
         }.getOrElse { error ->
-            UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
+            UpdateCheckResult.Failed(friendlyFailure(error))
         }
     }
 
@@ -75,24 +85,31 @@ class UpdateRepository(private val context: Context) {
         manifest: ReleaseManifest,
         asset: AndroidReleaseAsset,
         onProgress: (String, Int) -> Unit,
+        onVerifying: (String) -> Unit,
     ): UpdateCheckResult = withContext(Dispatchers.IO) {
-        runCatching {
+        val staging = File(context.cacheDir, "updates/${manifest.version}")
+
+        try {
             validateManifest(manifest, UpdateChannel.fromManifestValue(manifest.channel))
             validateAsset(asset, manifest.version)
 
-            val staging = File(context.cacheDir, "updates/${manifest.version}")
+            cleanupExpiredStaging(keepVersion = manifest.version)
             if (staging.exists()) staging.deleteRecursively()
-            require(staging.mkdirs() || staging.isDirectory) { "Could not create update staging directory." }
+            require(staging.mkdirs() || staging.isDirectory) {
+                "Could not create update staging directory."
+            }
 
             val apk = File(staging, asset.fileName)
             val sig = File(staging, asset.signature.fileName)
 
             downloadVerifiedSize(asset.downloadUrl, apk, asset.size) { read ->
-                val percent = ((read * 100L) / asset.size.coerceAtLeast(1L)).toInt().coerceIn(0, 100)
+                val percent = ((read * 100L) / asset.size.coerceAtLeast(1L))
+                    .toInt()
+                    .coerceIn(0, 100)
                 onProgress(manifest.version, percent)
             }
-            downloadVerifiedSize(asset.signature.downloadUrl, sig, asset.signature.size) { }
 
+            downloadVerifiedSize(asset.signature.downloadUrl, sig, asset.signature.size) { }
             onProgress(manifest.version, 100)
 
             val prepared = PreparedUpdate(
@@ -103,10 +120,13 @@ class UpdateRepository(private val context: Context) {
                 asset = asset,
             )
 
+            onVerifying(manifest.version)
             verifyPreparedUpdate(prepared)
             UpdateCheckResult.ReadyToInstall(prepared)
-        }.getOrElse { error ->
-            UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
+        } catch (error: Throwable) {
+            // Never retain a download that failed validation or did not finish.
+            staging.deleteRecursively()
+            UpdateCheckResult.Failed(friendlyFailure(error))
         }
     }
 
@@ -135,7 +155,7 @@ class UpdateRepository(private val context: Context) {
             context.startActivity(intent)
             UpdateCheckResult.Installing(prepared.version)
         }.getOrElse { error ->
-            UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
+            UpdateCheckResult.Failed(friendlyFailure(error))
         }
     }
 
@@ -332,6 +352,40 @@ class UpdateRepository(private val context: Context) {
         }
     }
 
+    private fun cleanupInstalledVersionStaging() {
+        val installed = File(context.cacheDir, "updates/${BuildConfig.VERSION_NAME}")
+        if (installed.exists()) installed.deleteRecursively()
+        removeEmptyUpdateRoot()
+    }
+
+    private fun cleanupExpiredStaging(keepVersion: String? = null) {
+        val root = File(context.cacheDir, "updates")
+        if (!root.isDirectory) return
+
+        val cutoff = System.currentTimeMillis() - STAGING_MAX_AGE_MS
+        root.listFiles()?.forEach { candidate ->
+            if (candidate.name == keepVersion) return@forEach
+
+            val expired = candidate.lastModified() <= 0L || candidate.lastModified() < cutoff
+            if (expired) candidate.deleteRecursively()
+        }
+        removeEmptyUpdateRoot()
+    }
+
+    private fun removeEmptyUpdateRoot() {
+        val root = File(context.cacheDir, "updates")
+        if (root.isDirectory && root.listFiles().isNullOrEmpty()) {
+            root.delete()
+        }
+    }
+
+    private fun friendlyFailure(error: Throwable): String = when (error) {
+        is UnknownHostException -> "No internet connection or update host unavailable."
+        is SocketTimeoutException -> "Update request timed out. Please try again."
+        is SecurityException -> "Android blocked the update operation: ${error.message ?: "permission denied"}"
+        else -> error.message ?: error.javaClass.simpleName
+    }
+
     private fun sha256(file: File): String {
         val digest = MessageDigest.getInstance("SHA-256")
         file.inputStream().use { input ->
@@ -344,4 +398,8 @@ class UpdateRepository(private val context: Context) {
         }
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
+    private companion object {
+        const val STAGING_MAX_AGE_MS = 24L * 60L * 60L * 1000L
+    }
+
 }
