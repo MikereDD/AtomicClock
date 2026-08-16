@@ -10,7 +10,11 @@ import java.net.URL
 sealed interface UpdateCheckResult {
     data object Checking : UpdateCheckResult
     data class Current(val version: String) : UpdateCheckResult
-    data class Available(val installedVersion: String, val manifest: ReleaseManifest, val asset: AndroidReleaseAsset) : UpdateCheckResult
+    data class Available(
+        val installedVersion: String,
+        val manifest: ReleaseManifest,
+        val asset: AndroidReleaseAsset,
+    ) : UpdateCheckResult
     data class Rejected(val reason: String) : UpdateCheckResult
     data class Failed(val message: String) : UpdateCheckResult
 }
@@ -20,8 +24,10 @@ class UpdateRepository {
         runCatching {
             val release = discoverRelease(channel)
                 ?: return@withContext UpdateCheckResult.Current(BuildConfig.VERSION_NAME)
+
             val manifestUrl = release.manifestUrl
                 ?: return@withContext UpdateCheckResult.Rejected("Release has no release-manifest.json asset.")
+
             UpdateTrust.requireApprovedHttps(manifestUrl)
             val manifest = ReleaseManifest.parse(fetchText(manifestUrl))
             validateManifest(manifest, channel)
@@ -33,8 +39,11 @@ class UpdateRepository {
             }
 
             val asset = manifest.assets.singleOrNull { it.packageId == UpdateTrust.PACKAGE_ID }
-                ?: return@withContext UpdateCheckResult.Rejected("Manifest does not contain exactly one Atomic Clock APK asset.")
-            validateAsset(asset)
+                ?: return@withContext UpdateCheckResult.Rejected(
+                    "Manifest does not contain exactly one Atomic Clock APK asset."
+                )
+
+            validateAsset(asset, manifest.version)
             UpdateCheckResult.Available(BuildConfig.VERSION_NAME, manifest, asset)
         }.getOrElse { error ->
             UpdateCheckResult.Failed(error.message ?: error.javaClass.simpleName)
@@ -46,9 +55,11 @@ class UpdateRepository {
     private fun discoverRelease(channel: UpdateChannel): ReleaseDiscovery? {
         UpdateTrust.requireApprovedHttps(UpdateTrust.RELEASES_API)
         val releases = JSONArray(fetchText(UpdateTrust.RELEASES_API))
+
         for (index in 0 until releases.length()) {
             val release = releases.getJSONObject(index)
             if (release.optBoolean("draft", false)) continue
+
             val prerelease = release.optBoolean("prerelease", false)
             val eligible = when (channel) {
                 UpdateChannel.STABLE -> !prerelease
@@ -83,19 +94,39 @@ class UpdateRepository {
         TypezeroVersion.parse(manifest.version)
     }
 
-    private fun validateAsset(asset: AndroidReleaseAsset) {
+    private fun validateAsset(asset: AndroidReleaseAsset, manifestVersion: String) {
+        require(asset.fileName == "AtomicClock-v$manifestVersion.apk") {
+            "Unexpected APK asset name."
+        }
+        require(asset.size > 0) { "APK asset size is invalid." }
+        require(asset.sha256.matches(Regex("^[0-9a-f]{64}$"))) {
+            "APK SHA-256 is invalid."
+        }
         require(asset.packageId == UpdateTrust.PACKAGE_ID) { "APK package ID mismatch." }
         require(asset.signingCertificateSha256 == UpdateTrust.APK_SIGNING_CERT_SHA256) {
             "APK signer identity does not match Atomic Clock's pinned certificate."
         }
-        require(asset.signature.keyId == UpdateTrust.RELEASE_SIGNING_KEY_ID) {
+
+        val signature = asset.signature
+        require(signature.keyId == UpdateTrust.RELEASE_SIGNING_KEY_ID) {
             "Detached release signing-key ID is not approved."
         }
-        require(asset.signature.algorithm.lowercase() == "rsa-sha256") {
+        require(signature.publicKeySha256 == UpdateTrust.RELEASE_SIGNING_PUBLIC_KEY_SHA256) {
+            "Detached release public-key identity does not match Atomic Clock's pinned trust anchor."
+        }
+        require(signature.algorithm.lowercase() == "rsa-sha256") {
             "Unsupported detached signature algorithm."
         }
+        require(signature.fileName == "${asset.fileName}.sig") {
+            "Unexpected detached signature filename."
+        }
+        require(signature.size > 0) { "Detached signature size is invalid." }
+        require(signature.sha256.matches(Regex("^[0-9a-f]{64}$"))) {
+            "Detached signature SHA-256 is invalid."
+        }
+
         UpdateTrust.requireApprovedHttps(asset.downloadUrl)
-        UpdateTrust.requireApprovedHttps(asset.signature.downloadUrl)
+        UpdateTrust.requireApprovedHttps(signature.downloadUrl)
     }
 
     private fun fetchText(url: String): String {
@@ -108,6 +139,7 @@ class UpdateRepository {
             setRequestProperty("Accept", "application/vnd.github+json, application/json")
             setRequestProperty("User-Agent", "AtomicClock/${BuildConfig.VERSION_NAME}")
         }
+
         try {
             val code = connection.responseCode
             if (code in 300..399) {

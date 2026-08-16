@@ -1,3 +1,11 @@
+## 0.6.1-dev.2
+
+- Add the permanent detached Typezer∅ release-signing trust anchor.
+- Generate and immediately verify RSA/SHA-256 .apk.sig release signatures.
+- Generate schema-2 manifests with exact signature metadata, updater protocol compatibility, and source provenance.
+- Pin the release-key ID and SPKI SHA-256 in the Android updater.
+- Embed only the verified public release key; private signing material remains outside the repository.
+- Add runtime detached-signature verification support for the upcoming staged-download/install flow.
 # Changelog
 
 ## 0.6.1-dev.1
