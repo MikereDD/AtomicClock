@@ -1,15 +1,31 @@
+# IntelliJ / Android Studio
 *.iml
-.gradle
-.kotlin
-/local.properties
-/.idea
+.idea/
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+
+# Local Android SDK / machine-specific config
+local.properties
+
+# OS / IDE junk
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+captures/
+
+# Native build outputs
+.externalNativeBuild/
+.cxx/
+
+# Build outputs
+**/build/
+
+# Android release artifacts
 *.apk
 *.apk.idsig
+*.aab
 
-# Android build outputs
-**/build/
+# Signing / secrets
+keystore.properties
+*.jks
+*.keystore
