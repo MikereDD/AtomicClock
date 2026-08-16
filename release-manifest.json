@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "appId": "com.typezero.atomicclock",
+  "platform": "android",
+  "channel": "__CHANNEL__",
+  "version": "__VERSION__",
+  "versionCode": 0,
+  "publishedAt": "__PUBLISHED_AT__",
+  "minimumVersion": "0.5.1",
+  "minimumUpdaterProtocolVersion": 1,
+  "mandatory": false,
+  "releaseNotes": "docs/releases/v__VERSION__.md",
+  "releaseNotesUrl": "https://github.com/MikereDD/AtomicClock/releases/tag/atomicclock-v__VERSION__",
+  "rollback": {
+    "allowed": false,
+    "previousVersion": null
+  },
+  "assets": [
+    {
+      "name": "AtomicClock-v__VERSION__.apk",
+      "type": "apk",
+      "size": 0,
+      "sha256": "__SHA256__",
+      "url": "https://github.com/MikereDD/AtomicClock/releases/download/atomicclock-v__VERSION__/AtomicClock-v__VERSION__.apk"
+    }
+  ],
+  "signature": {
+    "scheme": "Android APK signing",
+    "certificateSha256": "__CERTIFICATE_SHA256__",
+    "keyIdentity": "Typezer∅ Android release key"
+  }
+}

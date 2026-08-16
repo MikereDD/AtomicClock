@@ -4,7 +4,7 @@
 
 # 🕰️ Atomic Clock
 
-### Precise time over NTP · live local weather · a home-screen widget
+### Precise time over NTP · live local weather · premium home-screen widgets
 
 ![Version](https://img.shields.io/badge/version-0.6.0-39E0D0?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square&logo=android&logoColor=white)
@@ -12,73 +12,116 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
 ![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)
 
-[**⬇️ Download APK**](https://github.com/MikereDD/It-Works-On-My-Machine/raw/refs/heads/main/Android/AtomicClock/releases/atomic-clock-v0.5.1.apk) &nbsp;·&nbsp; [**📜 Changelog**](CHANGELOG.md) &nbsp;·&nbsp; [**🗺️ Roadmap**](ROADMAP.md)
+[**⬇️ Latest Release**](https://github.com/MikereDD/AtomicClock/releases/latest) &nbsp;·&nbsp; [**📜 Changelog**](CHANGELOG.md) &nbsp;·&nbsp; [**🗺️ Roadmap**](ROADMAP.md)
 
 </div>
 
 ---
 
-A polished Android clock that syncs to internet time servers over **SNTP/NTP** and shows true atomic time — not your device's (possibly drifting) wall clock — with live local weather and a home-screen widget.
+Atomic Clock is an Android precision clock that syncs against internet time servers over **SNTP/NTP**, displays live local weather, and provides both practical and showcase-grade home-screen widgets.
 
 ## ⏱️ What makes it accurate
 
 - 🛰️ **SNTP client (RFC 4330)** — computes clock offset and round-trip delay from the four NTP timestamps, modelled on AOSP's `SntpClient`.
-- ⚓ **Monotonic anchoring** — the resolved time is pinned to `SystemClock.elapsedRealtime()`, so it stays correct even if the device clock is wrong or gets changed.
-- 🎯 **Best-of-N sampling** — each sync queries the chosen server several times and keeps the lowest-latency response, falling back across other public servers if needed.
+- ⚓ **Monotonic anchoring** — resolved time is pinned to `SystemClock.elapsedRealtime()`, so it stays useful even if the device wall clock changes.
+- 🎯 **Best-of-N sampling** — foreground sync keeps the lowest-latency response and falls back across multiple public NTP providers.
+- 🔋 **Battery-conscious background sync** — cached NTP/weather/location data is reused when still fresh and background work respects network and battery constraints.
 
 ## 🌦️ Weather
 
 - 🌡️ Current **temperature, conditions, feels-like, humidity, wind** (speed + direction), **dew point**, and **city**.
-- 🔑 Powered by [Open-Meteo](https://open-meteo.com) — free, no API key.
-- 📍 Coarse location via the platform `LocationManager` (no Play Services). Fully optional — the clock works without it.
+- 🔑 Powered by [Open-Meteo](https://open-meteo.com) — free and keyless.
+- 📍 Coarse location via the platform `LocationManager` (no Play Services). Weather is optional; the clock works without location access.
+- 🧭 Background location is optional and only needed when the widget should follow location changes while the app is closed.
 
-## 🧩 Home-screen widget
+## 🧩 Home-screen widgets
 
-- 📐 Two **separately pickable** sizes — **2×1** and **4×2** tiles (both resizable).
-- ⏰ Time self-updates to the minute via Android's `TextClock` (no service, no battery cost).
-- 📊 Shows drift, sync source, and a weather line; **tap to open the app**.
-- 🎨 Adjustable background — **Solid · Translucent · Clear** — to sit lighter over your wallpaper.
-- 🔄 Battery-conscious background weather refresh; **Allow all the time** lets the widget follow location changes while the app is closed.
-- 🕒 Large widget shows when weather was last updated, so stale readings are easy to spot.
+Atomic Clock includes the preserved **Classic** widget family and the precision **Dial** widget family.
+
+### Precision Dial themes
+
+The Dial uses one verified mechanical geometry across every visual family, so switching themes changes the instrument's appearance without changing its timing layout.
+
+![Atomic Clock widget themes: Midnight, Arctic, Retro Brass, and Emerald](docs/images/widget-themes.png)
+
+| Midnight | Arctic |
+| --- | --- |
+| Dark precision-instrument face with cyan accents and matching live hands. | Bright silver/white face with icy-blue accents and the proven Midnight hand geometry. |
+
+| Retro Brass | Emerald |
+| --- | --- |
+| Aged bronze/brass face with warm amber accents and matching brass hands. | Black/chrome face with vivid emerald accents and matching green/chrome hands. |
+
+The Dial supports **Midnight · Arctic · Retro Brass · Emerald**, responsive compact/normal/large placements, live hour/minute/second hands, NTP drift, date, weather, humidity, and **Solid · Translucent · Clear** widget backgrounds.
 
 ## ⚙️ Settings
 
-- 🌡️ Independent **°C / °F** and **km/h / mph** toggles — defaulting by locale; **tap the temperature** to flip units.
+- 🎨 Dial theme: **Midnight · Arctic · Retro Brass · Emerald**.
+- 🌡️ Independent **°C / °F** and **km/h / mph** toggles, defaulting by locale.
 - 🕓 24-hour / 12-hour and milliseconds on/off.
 - 🌐 Time source: **Google · Cloudflare · NTP Pool · Apple · NIST**.
-- ℹ️ About dialog with version, credits, and a GitHub link.
+- 🖼️ Widget background: **Solid · Translucent · Clear**.
+- ℹ️ About dialog with version, credits, and the public GitHub repository.
 
 ## 📲 Install
 
-[**Download the APK**](https://github.com/MikereDD/It-Works-On-My-Machine/raw/refs/heads/main/Android/AtomicClock/releases/atomic-clock-v0.5.1.apk) and open it on your device (allow install from unknown sources), or build from source below.
+Open the [**latest GitHub Release**](https://github.com/MikereDD/AtomicClock/releases/latest), download the signed APK, and install it on your Android device.
 
-> **Permissions:** `INTERNET`; `ACCESS_COARSE_LOCATION` (optional — weather only); `ACCESS_BACKGROUND_LOCATION` (optional — automatic widget weather/city updates while the app is closed).
+> **Permissions:** `INTERNET`; `ACCESS_COARSE_LOCATION` (optional — weather); `ACCESS_BACKGROUND_LOCATION` (optional — following location changes while the app is closed); `RECEIVE_BOOT_COMPLETED` (restores scheduled widget maintenance after reboot).
 
 ## 🛠️ Build
 
-Open the project in Android Studio and Run, or from the command line:
+Debug/development build:
 
 ```sh
-./gradlew :app:assembleRelease
+./gradlew assembleDebug
 ```
+
+Windows release build using the repository's verification pipeline:
+
+```powershell
+.\scripts\Build-Release.ps1
+```
+
+Release signing credentials are supplied outside Git. See [**Android release signing**](docs/releases/SIGNING.md) and the full [**release procedure**](docs/releases/RELEASING.md).
 
 `minSdk` 26 · `targetSdk` / `compileSdk` 35 · Kotlin 2.1 · Jetpack Compose (Material 3)
 
 ## 📂 Project layout
 
-```
+```text
 app/src/main/java/com/typezero/atomicclock/
 ├── MainActivity.kt
 ├── ClockViewModel.kt
-├── ntp/        SntpClient, SntpResult, NtpServer
-├── data/       TimeSyncRepository, SettingsRepository
-├── weather/    OpenMeteoClient, LocationProvider, WeatherRepository
-├── ui/         AtomicClockScreen, formatting, theme/, components/
-└── widget/     AtomicClockWidget (AppWidgetProvider), WidgetStore
+├── ntp/        SNTP client and server definitions
+├── data/       Time sync and persisted settings
+├── weather/    Open-Meteo, location, and weather data
+├── ui/         Main application UI, formatting, theme, components
+└── widget/     Classic + precision Dial widgets and renderers
+
+scripts/
+├── Build-Release.ps1
+├── Create-Signing-Key.ps1
+├── Generate-Checksums.ps1
+├── Generate-Manifest.ps1
+└── Verify-Release.ps1
+
+docs/releases/
+├── SIGNING.md
+├── RELEASING.md
+└── v0.6.0.md
 ```
+
+## 🔐 Release integrity
+
+Public releases are tied to Git tags and distributed as signed Android APKs. The release bundle includes a SHA-256 checksum file, signer verification output, and a machine-readable release manifest. Signing keys and passwords never belong in the repository.
 
 ## 📜 Changelog
 
 See the [**full changelog**](CHANGELOG.md) for version history and the [**roadmap**](ROADMAP.md) for the path to v1.0.
 
-<div align="center"><sub>Built by <b>typezero</b> · It-Works-On-My-Machine</sub></div>
+## ⚖️ License
+
+Atomic Clock is licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for the full license text.
+
+<div align="center"><sub>Built by <b>Typezer∅</b></sub></div>

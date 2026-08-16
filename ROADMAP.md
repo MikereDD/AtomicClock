@@ -20,12 +20,15 @@ Atomic Clock is moving toward a polished v1.0 release with two priorities: depen
 
 ## v0.8.0 — Visual Redesign
 
-- Redesign the main Atomic Clock app around a precision-instrument identity.
-- Preserve the current home-screen widget permanently as **Classic**.
-- Introduce the new **Dial** widget as the visual showpiece.
-- Support both **12-hour** and **24-hour** dial modes.
-- Build a curated theme system, initially targeting **Midnight**, **Retro Brass**, **Arctic**, and **Emerald**.
-- Keep themes visually distinct rather than simple recolors of one surface.
+The major Dial-widget portion of this milestone was implemented ahead of schedule during the v0.6 development cycle.
+
+- [ ] Redesign the main Atomic Clock app around a precision-instrument identity.
+- [x] Preserve the existing home-screen widget as **Classic**.
+- [x] Introduce the precision **Dial** widget as the visual showpiece.
+- [x] Build a curated Dial theme system with **Midnight**, **Retro Brass**, **Arctic**, and **Emerald**.
+- [x] Keep all Dial themes on one verified mechanical geometry while allowing distinct faces and hands.
+- [x] Polish the Dial date, weather, humidity, and NTP drift hierarchy.
+- [ ] Complete the remaining 12/24-hour presentation review and final main-app visual redesign.
 
 ### Dial widget inspiration
 

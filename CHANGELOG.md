@@ -5,6 +5,18 @@ All notable changes to Atomic Clock are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Added the precision **Dial** widget family with selectable **Midnight**, **Arctic**, **Retro Brass**, and **Emerald** themes.
+- Added theme-specific face artwork and live hand sets while preserving one verified mechanical dial geometry.
+- Added release tooling for signed APK builds, SHA-256 checksums, signer verification, release manifests, and GitHub release packaging.
+
+### Changed
+- Enlarged and repositioned the Dial date complication for stronger readability and better lower-center balance.
+- Enlarged and lowered the weather and humidity complications, keeping both sides symmetrical across all four themes.
+- Updated the About link and public documentation for the standalone GitHub repository.
+
 ## [0.6.0] - 2026-08-12
 
 ### Changed

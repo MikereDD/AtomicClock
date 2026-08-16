@@ -29,3 +29,7 @@ captures/
 keystore.properties
 *.jks
 *.keystore
+
+# Local release signing environment/helpers
+.env
+.env.*
