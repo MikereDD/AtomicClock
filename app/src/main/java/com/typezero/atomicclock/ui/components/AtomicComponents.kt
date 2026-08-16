@@ -47,6 +47,7 @@ import com.typezero.atomicclock.ui.theme.AtomAmber
 import com.typezero.atomicclock.ui.theme.AtomRed
 import com.typezero.atomicclock.ui.theme.AtomTeal
 import com.typezero.atomicclock.weather.BackgroundLocationStatus
+import com.typezero.atomicclock.widget.DialTheme
 
 enum class StatusKind { SYNCED, SYNCING, OFFLINE }
 
@@ -127,6 +128,7 @@ fun SettingsSheet(
     onSelectUnit: (Boolean) -> Unit,
     onSelectWind: (Boolean) -> Unit,
     onSelectWidgetBg: (Int) -> Unit,
+    onSelectDialTheme: (DialTheme) -> Unit,
     onSelectServer: (NtpServer) -> Unit,
     backgroundLocationStatus: BackgroundLocationStatus,
     onBackgroundUpdates: () -> Unit,
@@ -185,6 +187,20 @@ fun SettingsSheet(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Segmented("km/h", "mph", rightSelected = settings.windMph, onSelect = onSelectWind)
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+                Text(
+                    "Dial theme",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Segmented(
+                    "Midnight",
+                    "Arctic",
+                    rightSelected = settings.dialTheme == DialTheme.ARCTIC,
+                    onSelect = { arctic -> onSelectDialTheme(if (arctic) DialTheme.ARCTIC else DialTheme.MIDNIGHT) },
+                )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {

@@ -49,6 +49,7 @@ object WidgetUpdater {
         fahrenheit = settings.fahrenheit,
         windMph = settings.windMph,
         bgLevel = settings.widgetBackground.ordinal,
+        dialThemeName = settings.dialTheme.name,
     )
 
     /**

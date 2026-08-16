@@ -120,7 +120,11 @@ open class AtomicClockDialWidget : AppWidgetProvider() {
             val squareDp = min(hostWidthDp, hostHeightDp).coerceAtLeast(48f)
             val density = context.resources.displayMetrics.density
             val renderPx = (squareDp * density).roundToInt()
-            val composite = MidnightDialRenderer.render(context, snapshot, renderPx)
+            val theme = runCatching { DialTheme.valueOf(snapshot.dialThemeName) }.getOrDefault(DialTheme.MIDNIGHT)
+            val composite = when (theme) {
+                DialTheme.ARCTIC -> ArcticDialRenderer.render(context, snapshot, renderPx)
+                else -> MidnightDialRenderer.render(context, snapshot, renderPx)
+            }
 
             return RemoteViews(context.packageName, R.layout.widget_dial_midnight).apply {
                 setInt(R.id.dial_root, "setBackgroundResource", backgroundRes(snapshot.bgLevel))

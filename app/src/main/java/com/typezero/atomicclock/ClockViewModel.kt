@@ -13,6 +13,7 @@ import com.typezero.atomicclock.weather.WeatherRepository
 import com.typezero.atomicclock.weather.WeatherState
 import com.typezero.atomicclock.widget.AtomicClockWidget
 import com.typezero.atomicclock.widget.WidgetBackground
+import com.typezero.atomicclock.widget.DialTheme
 import com.typezero.atomicclock.widget.WidgetStore
 import com.typezero.atomicclock.widget.WidgetUpdater
 import com.typezero.atomicclock.widget.WidgetWork
@@ -110,6 +111,9 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setWidgetBackground(value: WidgetBackground) =
         viewModelScope.launch { settingsRepo.setWidgetBackground(value) }
+
+    fun setDialTheme(value: DialTheme) =
+        viewModelScope.launch { settingsRepo.setDialTheme(value) }
 
     fun setServer(server: NtpServer) = viewModelScope.launch {
         settingsRepo.setServer(server)

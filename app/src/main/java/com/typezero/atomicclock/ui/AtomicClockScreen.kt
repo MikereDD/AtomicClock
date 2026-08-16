@@ -72,6 +72,7 @@ import com.typezero.atomicclock.ui.theme.AtomViolet
 import com.typezero.atomicclock.weather.WeatherState
 import com.typezero.atomicclock.weather.backgroundLocationStatus
 import com.typezero.atomicclock.widget.WidgetBackground
+import com.typezero.atomicclock.widget.DialTheme
 
 @Composable
 fun AtomicClockScreen(vm: ClockViewModel = viewModel()) {
@@ -268,6 +269,7 @@ fun AtomicClockScreen(vm: ClockViewModel = viewModel()) {
                 onSelectUnit = { vm.setFahrenheit(it) },
                 onSelectWind = { vm.setWindMph(it) },
                 onSelectWidgetBg = { vm.setWidgetBackground(WidgetBackground.entries[it]) },
+                onSelectDialTheme = { vm.setDialTheme(it) },
                 onSelectServer = { vm.setServer(it) },
                 backgroundLocationStatus = bgLocationStatus,
                 onBackgroundUpdates = enableBackgroundUpdates,

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.typezero.atomicclock.ntp.NtpServer
 import com.typezero.atomicclock.widget.WidgetBackground
+import com.typezero.atomicclock.widget.DialTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,6 +23,7 @@ data class AtomicSettings(
     val fahrenheit: Boolean = false,
     val windMph: Boolean = false,
     val widgetBackground: WidgetBackground = WidgetBackground.TRANSLUCENT,
+    val dialTheme: DialTheme = DialTheme.MIDNIGHT,
 )
 
 class SettingsRepository(private val context: Context) {
@@ -36,6 +38,9 @@ class SettingsRepository(private val context: Context) {
             widgetBackground = runCatching {
                 WidgetBackground.valueOf(prefs[KEY_WIDGET_BG] ?: WidgetBackground.TRANSLUCENT.name)
             }.getOrDefault(WidgetBackground.TRANSLUCENT),
+            dialTheme = runCatching {
+                DialTheme.valueOf(prefs[KEY_DIAL_THEME] ?: DialTheme.MIDNIGHT.name)
+            }.getOrDefault(DialTheme.MIDNIGHT),
         )
     }
 
@@ -57,6 +62,9 @@ class SettingsRepository(private val context: Context) {
     suspend fun setWidgetBackground(value: WidgetBackground) =
         context.dataStore.edit { it[KEY_WIDGET_BG] = value.name }.let {}
 
+    suspend fun setDialTheme(value: DialTheme) =
+        context.dataStore.edit { it[KEY_DIAL_THEME] = value.name }.let {}
+
     /** Default to Fahrenheit only in locales that customarily use it. */
     private fun defaultFahrenheit(): Boolean =
         java.util.Locale.getDefault().country in setOf("US", "LR", "MM")
@@ -72,5 +80,6 @@ class SettingsRepository(private val context: Context) {
         val KEY_FAHRENHEIT = booleanPreferencesKey("fahrenheit")
         val KEY_WIND_MPH = booleanPreferencesKey("wind_mph")
         val KEY_WIDGET_BG = stringPreferencesKey("widget_bg")
+        val KEY_DIAL_THEME = stringPreferencesKey("dial_theme")
     }
 }

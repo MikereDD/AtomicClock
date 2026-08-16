@@ -23,6 +23,7 @@ data class WidgetSnapshot(
     val fahrenheit: Boolean = false,
     val windMph: Boolean = false,
     val bgLevel: Int = WidgetBackground.TRANSLUCENT.ordinal,
+    val dialThemeName: String = DialTheme.MIDNIGHT.name,
 )
 
 /**
@@ -58,6 +59,7 @@ object WidgetStore {
             putBoolean("fahrenheit", s.fahrenheit)
             putBoolean("windMph", s.windMph)
             putInt("bgLevel", s.bgLevel)
+            putString("dialThemeName", s.dialThemeName)
             apply()
         }
     }
@@ -81,6 +83,7 @@ object WidgetStore {
             fahrenheit = p.getBoolean("fahrenheit", false),
             windMph = p.getBoolean("windMph", false),
             bgLevel = p.getInt("bgLevel", WidgetBackground.TRANSLUCENT.ordinal),
+            dialThemeName = p.getString("dialThemeName", DialTheme.MIDNIGHT.name) ?: DialTheme.MIDNIGHT.name,
         )
     }
 }
