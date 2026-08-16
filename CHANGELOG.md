@@ -1,3 +1,7 @@
+## 0.6.1-dev.4
+
+- First dedicated end-to-end updater target for the v0.6.1 development line.
+- No updater trust-model changes from dev.3; this build exists to validate secure discovery, download, verification, and Android installer handoff from an installed dev.3 build.
 ## 0.6.1-dev.3
 
 - Add secure staged download of APK and detached release signature.
