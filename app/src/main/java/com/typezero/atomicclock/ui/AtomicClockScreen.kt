@@ -79,6 +79,7 @@ fun AtomicClockScreen(vm: ClockViewModel = viewModel()) {
     val syncState by vm.syncState.collectAsState()
     val settings by vm.settings.collectAsState()
     val weatherState by vm.weatherState.collectAsState()
+    val updateState by vm.updateState.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
 
@@ -270,6 +271,9 @@ fun AtomicClockScreen(vm: ClockViewModel = viewModel()) {
                 onSelectWind = { vm.setWindMph(it) },
                 onSelectWidgetBg = { vm.setWidgetBackground(WidgetBackground.entries[it]) },
                 onSelectDialTheme = { vm.setDialTheme(it) },
+                updateState = updateState,
+                onSelectUpdateChannel = { vm.setUpdateChannel(it) },
+                onCheckForUpdates = { vm.checkForUpdates() },
                 onSelectServer = { vm.setServer(it) },
                 backgroundLocationStatus = bgLocationStatus,
                 onBackgroundUpdates = enableBackgroundUpdates,

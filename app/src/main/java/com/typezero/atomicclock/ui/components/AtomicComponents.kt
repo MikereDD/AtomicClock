@@ -43,6 +43,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import com.typezero.atomicclock.data.AtomicSettings
 import com.typezero.atomicclock.ntp.NtpServer
+import com.typezero.atomicclock.update.UpdateChannel
+import com.typezero.atomicclock.update.UpdateCheckResult
 import com.typezero.atomicclock.ui.theme.AtomAmber
 import com.typezero.atomicclock.ui.theme.AtomRed
 import com.typezero.atomicclock.ui.theme.AtomTeal
@@ -129,6 +131,9 @@ fun SettingsSheet(
     onSelectWind: (Boolean) -> Unit,
     onSelectWidgetBg: (Int) -> Unit,
     onSelectDialTheme: (DialTheme) -> Unit,
+    updateState: UpdateCheckResult?,
+    onSelectUpdateChannel: (UpdateChannel) -> Unit,
+    onCheckForUpdates: () -> Unit,
     onSelectServer: (NtpServer) -> Unit,
     backgroundLocationStatus: BackgroundLocationStatus,
     onBackgroundUpdates: () -> Unit,
@@ -211,6 +216,46 @@ fun SettingsSheet(
                     selected = settings.dialTheme,
                     onSelect = onSelectDialTheme,
                 )
+            }
+
+            Text(
+                "UPDATES",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Update channel", style = MaterialTheme.typography.bodyMedium)
+                Segmented(
+                    "Stable",
+                    "Development",
+                    rightSelected = settings.updateChannel == UpdateChannel.DEVELOPMENT,
+                ) { development ->
+                    onSelectUpdateChannel(if (development) UpdateChannel.DEVELOPMENT else UpdateChannel.STABLE)
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable(enabled = updateState !is UpdateCheckResult.Checking, onClick = onCheckForUpdates)
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Check for updates", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        updateStatusText(updateState),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Icon(Icons.Rounded.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Text(
@@ -395,6 +440,16 @@ private fun DialThemeSegmented(selected: DialTheme, onSelect: (DialTheme) -> Uni
             }
         }
     }
+}
+
+
+private fun updateStatusText(state: UpdateCheckResult?): String = when (state) {
+    null -> "Current version ${com.typezero.atomicclock.BuildConfig.VERSION_NAME}"
+    UpdateCheckResult.Checking -> "Checking approved release sources…"
+    is UpdateCheckResult.Current -> "Up to date · ${state.version}"
+    is UpdateCheckResult.Available -> "${state.manifest.version} available · verification required before install"
+    is UpdateCheckResult.Rejected -> "Rejected safely · ${state.reason}"
+    is UpdateCheckResult.Failed -> "Check failed · ${state.message}"
 }
 
 @Composable

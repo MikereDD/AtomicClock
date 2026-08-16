@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.1-dev.1
+
+- Begin Typezer∅ Android updater implementation.
+- Add exact numeric Typezer∅ version parsing/comparison for stable and multi-part development versions.
+- Add Stable/Development update-channel preference.
+- Add approved-origin GitHub release discovery and schema/app/platform/channel/protocol validation.
+- Pin Atomic Clock package ID and APK signing-certificate SHA-256 locally.
+- Add Settings update-status UI and manual Check for updates action.
+- Installation remains intentionally disabled until detached release signing and final trust-boundary verification are implemented.
+
 All notable changes to Atomic Clock are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

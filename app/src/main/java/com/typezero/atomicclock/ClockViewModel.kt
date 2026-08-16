@@ -10,6 +10,9 @@ import com.typezero.atomicclock.data.TimeSyncRepository
 import com.typezero.atomicclock.ntp.NtpServer
 import com.typezero.atomicclock.ntp.SntpResult
 import com.typezero.atomicclock.weather.WeatherRepository
+import com.typezero.atomicclock.update.UpdateChannel
+import com.typezero.atomicclock.update.UpdateCheckResult
+import com.typezero.atomicclock.update.UpdateRepository
 import com.typezero.atomicclock.weather.WeatherState
 import com.typezero.atomicclock.widget.AtomicClockWidget
 import com.typezero.atomicclock.widget.DialTheme
@@ -40,12 +43,16 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
     private val timeSync = TimeSyncRepository()
     private val settingsRepo = SettingsRepository(app)
     private val weatherRepo = WeatherRepository(app)
+    private val updateRepo = UpdateRepository()
 
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
 
     private val _weatherState = MutableStateFlow<WeatherState>(WeatherState.Loading)
     val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
+
+    private val _updateState = MutableStateFlow<UpdateCheckResult?>(null)
+    val updateState: StateFlow<UpdateCheckResult?> = _updateState.asStateFlow()
 
     val settings: StateFlow<AtomicSettings> = settingsRepo.settings.stateIn(
         scope = viewModelScope,
@@ -114,6 +121,19 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setDialTheme(value: DialTheme) =
         viewModelScope.launch { settingsRepo.setDialTheme(value) }
+
+    fun setUpdateChannel(value: UpdateChannel) = viewModelScope.launch {
+        settingsRepo.setUpdateChannel(value)
+        _updateState.value = null
+    }
+
+    fun checkForUpdates() {
+        if (_updateState.value is UpdateCheckResult.Checking) return
+        _updateState.value = UpdateCheckResult.Checking
+        viewModelScope.launch {
+            _updateState.value = updateRepo.check(settings.value.updateChannel)
+        }
+    }
 
     fun setServer(server: NtpServer) = viewModelScope.launch {
         settingsRepo.setServer(server)

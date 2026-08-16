@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.typezero.atomicclock.ntp.NtpServer
+import com.typezero.atomicclock.update.UpdateChannel
 import com.typezero.atomicclock.widget.DialTheme
 import com.typezero.atomicclock.widget.WidgetBackground
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,7 @@ data class AtomicSettings(
     val windMph: Boolean = false,
     val widgetBackground: WidgetBackground = WidgetBackground.TRANSLUCENT,
     val dialTheme: DialTheme = DialTheme.MIDNIGHT,
+    val updateChannel: UpdateChannel = UpdateChannel.DEVELOPMENT,
 )
 
 class SettingsRepository(private val context: Context) {
@@ -41,6 +43,9 @@ class SettingsRepository(private val context: Context) {
             dialTheme = runCatching {
                 DialTheme.valueOf(prefs[KEY_DIAL_THEME] ?: DialTheme.MIDNIGHT.name)
             }.getOrDefault(DialTheme.MIDNIGHT),
+            updateChannel = runCatching {
+                UpdateChannel.valueOf(prefs[KEY_UPDATE_CHANNEL] ?: UpdateChannel.DEVELOPMENT.name)
+            }.getOrDefault(UpdateChannel.DEVELOPMENT),
         )
     }
 
@@ -65,6 +70,9 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDialTheme(value: DialTheme) =
         context.dataStore.edit { it[KEY_DIAL_THEME] = value.name }.let {}
 
+    suspend fun setUpdateChannel(value: UpdateChannel) =
+        context.dataStore.edit { it[KEY_UPDATE_CHANNEL] = value.name }.let {}
+
     /** Default to Fahrenheit only in locales that customarily use it. */
     private fun defaultFahrenheit(): Boolean =
         java.util.Locale.getDefault().country in setOf("US", "LR", "MM")
@@ -81,5 +89,6 @@ class SettingsRepository(private val context: Context) {
         val KEY_WIND_MPH = booleanPreferencesKey("wind_mph")
         val KEY_WIDGET_BG = stringPreferencesKey("widget_bg")
         val KEY_DIAL_THEME = stringPreferencesKey("dial_theme")
+        val KEY_UPDATE_CHANNEL = stringPreferencesKey("update_channel")
     }
 }
