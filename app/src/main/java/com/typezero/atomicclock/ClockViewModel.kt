@@ -147,9 +147,13 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
                     _updateState.value = updateRepo.prepare(
                         manifest = current.manifest,
                         asset = current.asset,
-                    ) { version, percent ->
-                        _updateState.value = UpdateCheckResult.Downloading(version, percent)
-                    }
+                        onProgress = { version, percent ->
+                            _updateState.value = UpdateCheckResult.Downloading(version, percent)
+                        },
+                        onVerifying = { version ->
+                            _updateState.value = UpdateCheckResult.Verifying(version)
+                        },
+                    )
 
                     val prepared = _updateState.value as? UpdateCheckResult.ReadyToInstall
                     if (prepared != null) {
@@ -158,7 +162,15 @@ class ClockViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             is UpdateCheckResult.PermissionRequired -> {
-                updateRepo.openInstallPermissionSettings()
+                // First tap opens Android's permission page. After the user
+                // returns, tapping Continue installation retries the verified
+                // installer handoff instead of reopening Settings forever.
+                val result = updateRepo.launchInstaller(current.prepared)
+                if (result is UpdateCheckResult.PermissionRequired) {
+                    updateRepo.openInstallPermissionSettings()
+                } else {
+                    _updateState.value = result
+                }
             }
             is UpdateCheckResult.ReadyToInstall -> {
                 _updateState.value = updateRepo.launchInstaller(current.prepared)

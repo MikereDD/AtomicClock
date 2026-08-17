@@ -270,7 +270,7 @@ fun SettingsSheet(
             ) {
                 val actionLabel = when (updateState) {
                     is UpdateCheckResult.Available -> "Download & install"
-                    is UpdateCheckResult.PermissionRequired -> "Allow app installs"
+                    is UpdateCheckResult.PermissionRequired -> "Continue installation"
                     is UpdateCheckResult.ReadyToInstall -> "Install verified update"
                     else -> "Install update"
                 }
@@ -486,7 +486,12 @@ private fun updateStatusText(state: UpdateCheckResult?): String = when (state) {
     null -> "Current version ${com.typezero.atomicclock.BuildConfig.VERSION_NAME}"
     UpdateCheckResult.Checking -> "Checking approved release sources…"
     is UpdateCheckResult.Current -> "Up to date · ${state.version}"
-    is UpdateCheckResult.Available -> "${state.manifest.version} available · ready for secure download"
+    is UpdateCheckResult.Available ->
+        if (state.manifest.mandatory) {
+            "${state.manifest.version} required · ready for secure download"
+        } else {
+            "${state.manifest.version} available · ready for secure download"
+        }
     is UpdateCheckResult.Downloading -> "Downloading ${state.version} · ${state.percent}%"
     is UpdateCheckResult.Verifying -> "Verifying ${state.version} · checksum, signature, package & signer"
     is UpdateCheckResult.ReadyToInstall -> "${state.prepared.version} verified · ready for Android installer"
