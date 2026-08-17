@@ -1,3 +1,26 @@
+## [0.7.0] - 2026-08-16
+
+### Added
+- Production-ready Typezer∅ Android self-updater with Stable and Development channels.
+- Schema-2 release manifests with updater-protocol compatibility and Git source provenance.
+- Independent RSA/SHA-256 detached release signatures and locally pinned release-key identity.
+- Secure app-controlled update staging with size, SHA-256, package, version, and signing-certificate validation.
+- Android system package-installer handoff with per-app install-permission support.
+- Local release-manifest validation harness for reproducible fail-closed trust tests.
+
+### Changed
+- Update trust checks are repeated immediately before installer handoff.
+- Updater now surfaces Downloading and Verifying states and clearer offline/timeout failures.
+- Failed, rejected, abandoned, and successfully installed staging data is cleaned automatically.
+- Mandatory manifests are presented as required updates without bypassing Android installer confirmation.
+- Promoted the validated v0.6.1 development updater line to stable v0.7.0.
+
+### Validated
+- Release-signed dev.5 -> dev.6 in-app upgrade.
+- Settings/widget persistence across normal signed update.
+- Permission return flow and installer cancellation/retry.
+- Tampered APK and detached-signature rejection.
+- Unapproved release-key, wrong package ID, wrong APK signer, wrong channel, wrong public-key fingerprint, and incompatible updater-protocol rejection.
 ## 0.6.1-dev.6
 
 - Dedicated updater hardening validation target for the v0.6.1 development line.

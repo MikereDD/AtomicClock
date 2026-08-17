@@ -6,7 +6,7 @@
 
 ### Precise time over NTP · live local weather · premium home-screen widgets
 
-![Version](https://img.shields.io/badge/version-0.6.0-39E0D0?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.7.0-39E0D0?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![minSdk](https://img.shields.io/badge/minSdk-26-1E88E5?style=flat-square)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
@@ -63,11 +63,17 @@ The Dial supports **Midnight · Arctic · Retro Brass · Emerald**, responsive c
 - 🖼️ Widget background: **Solid · Translucent · Clear**.
 - ℹ️ About dialog with version, credits, and the public GitHub repository.
 
-## 📲 Install
+## 🔄 Secure updates
 
+Atomic Clock includes a Typezer∅-standard in-app updater with separate **Stable**
+and **Development** channels. Update payloads are accepted only after approved
+origin, manifest/protocol, SHA-256, detached RSA signature, package/version, and
+pinned Android signing-certificate checks pass. Android's system installer always
+retains final user confirmation.
+## 📲 Install
 Open the [**latest GitHub Release**](https://github.com/MikereDD/AtomicClock/releases/latest), download the signed APK, and install it on your Android device.
 
-> **Permissions:** `INTERNET`; `ACCESS_COARSE_LOCATION` (optional — weather); `ACCESS_BACKGROUND_LOCATION` (optional — following location changes while the app is closed); `RECEIVE_BOOT_COMPLETED` (restores scheduled widget maintenance after reboot).
+> **Permissions:** `INTERNET`; `ACCESS_COARSE_LOCATION` (optional — weather); `ACCESS_BACKGROUND_LOCATION` (optional — following location changes while the app is closed); `RECEIVE_BOOT_COMPLETED` (restores scheduled widget maintenance after reboot); `REQUEST_INSTALL_PACKAGES` (only when you choose to install a verified direct-update APK).
 
 ## 🛠️ Build
 
@@ -97,6 +103,7 @@ app/src/main/java/com/typezero/atomicclock/
 ├── data/       Time sync and persisted settings
 ├── weather/    Open-Meteo, location, and weather data
 ├── ui/         Main application UI, formatting, theme, components
+├── update/     Secure updater, trust anchors, manifest/signature/package verification
 └── widget/     Classic + precision Dial widgets and renderers
 
 scripts/
