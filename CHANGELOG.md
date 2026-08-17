@@ -1,3 +1,8 @@
+## 0.6.1-dev.6
+
+- Dedicated updater hardening validation target for the v0.6.1 development line.
+- No updater trust-model changes from dev.5.
+- Used to validate install-permission retry, installer cancellation/retry, secure staging cleanup, and normal signed upgrade from dev.5.
 ## 0.6.1-dev.5
 
 - Harden updater staging cleanup after failed, abandoned, and successfully installed updates.
